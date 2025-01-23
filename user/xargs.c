@@ -1,8 +1,8 @@
 #include "kernel/types.h"
 #include "user/user.h"
+#include "kernel/param.h"
 
 const int MAX_BUF = 512;
-const int MAX_ARGS = 32;
 
 int main(int argc, char *argv[]) {
 
@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     argc -= 1;
     argv += 1;
     char buf[MAX_BUF];
-    char *args[MAX_ARGS];
+    char *args[MAXARG];
     for(int i = 0; i < argc; ++i) {
         args[i] = argv[i];
     }
