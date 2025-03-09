@@ -91,3 +91,20 @@ kalloc(void)
   return (void*)r;
 }
 
+// Function to count the amount of free memory
+uint64
+freemem(void)
+{
+  struct run *r;
+  uint64 free_pages = 0;
+
+  acquire(&kmem.lock);
+  r = kmem.freelist;
+  while (r) {
+    free_pages++;
+    r = r->next;
+  }
+  release(&kmem.lock);
+
+  return free_pages * PGSIZE; // Convert page count to bytes
+}

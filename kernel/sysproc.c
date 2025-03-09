@@ -5,6 +5,25 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
+
+int count_processes(void);
+uint64 freemem(void);
+
+uint64 sys_sysinfo(void) {
+    uint64 addr;
+    struct sysinfo info;
+
+    argaddr(0, &addr);
+
+    info.nproc = count_processes();
+    info.freemem = freemem();
+
+    if (copyout(myproc()->pagetable, addr, (char*)&info, sizeof(info)) < 0)
+        return -1;
+
+    return 0;
+}
 
 uint64
 sys_exit(void)
