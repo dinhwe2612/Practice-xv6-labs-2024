@@ -9,6 +9,7 @@
 
 int count_processes(void);
 uint64 freemem(void);
+int get_loadavg();
 
 uint64 sys_sysinfo(void) {
     uint64 addr;
@@ -18,6 +19,7 @@ uint64 sys_sysinfo(void) {
 
     info.nproc = count_processes();
     info.freemem = freemem();
+    info.loadavg = get_loadavg();
 
     if (copyout(myproc()->pagetable, addr, (char*)&info, sizeof(info)) < 0)
         return -1;
