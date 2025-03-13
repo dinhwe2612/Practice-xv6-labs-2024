@@ -6,6 +6,10 @@
 #include "proc.h"
 #include "defs.h"
 
+#define LOADAVG_FACTOR 10  // factor for exponential decay (adjust as needed)
+// Global variable to store load average
+int loadavg = 0;
+
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
@@ -17,6 +21,9 @@ struct spinlock pid_lock;
 
 extern void forkret(void);
 static void freeproc(struct proc *p);
+
+int runnable_processes();
+void compute_loadavg();
 
 extern char trampoline[]; // trampoline.S
 
@@ -475,6 +482,8 @@ scheduler(void)
       }
       release(&p->lock);
     }
+    // Compute load average **only if at least one process ran**
+    if (found != 0) compute_loadavg();
     if(found == 0) {
       // nothing to run; stop running on this core until an interrupt.
       intr_on();
@@ -695,4 +704,46 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int
+count_processes(void)
+{
+    struct proc *p;
+    int count = 0;
+
+    for (p = proc; p < &proc[NPROC]; p++) {
+        acquire(&p->lock);
+        if (p->state != UNUSED) {
+            count++;
+        }
+        release(&p->lock);
+    }
+    return count;
+}
+
+int runnable_processes() {
+    int count = 0;
+    struct proc *p;
+
+    for (p = proc; p < &proc[NPROC]; p++) {
+        acquire(&p->lock);
+        if (p->state == RUNNABLE) {
+            count++;
+        }
+        release(&p->lock);
+    }
+
+    return count;
+}
+
+// Compute load average using an exponential moving average
+void compute_loadavg() {
+    int run_procs = runnable_processes();
+    loadavg = (loadavg * (LOADAVG_FACTOR - 1) + run_procs) / LOADAVG_FACTOR;
+}
+
+// Function to retrieve load average (needed for system call)
+int get_loadavg() {
+    return loadavg;
 }
