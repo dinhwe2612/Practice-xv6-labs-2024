@@ -51,9 +51,9 @@ A:
 2. uptime()
 - Returns the system's uptime since boot.
 - Optimization: Store the uptime in a shared memory page for faster access by processes, avoiding kernel calls.
-3. getcpu()
-- Returns the CPU ID on which the process is running.
-- Optimization: Store the CPU ID in a shared memory page for faster access without kernel involvement.
+3. chdir()
+- Modifies the process’s current working directory.
+- Optimization: Keep the directory path in a shared memory page so each process can update or read it without repeated kernel look‑ups.
 
 Q: For every leaf page in the vmprint output, explain what it logically contains and what its permission bits are, and how it relates to the output of the earlier print_pgtbl() exercise above.
 A: In a leaf PTE, each leaf is a 4KB mapping to physical memory that stores either code, data, or kernel structures. The lower 10 bits encode flag information (such as Valid, Read, Execute, and User), and the upper 54 bits store the physical page address.
