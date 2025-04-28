@@ -23,7 +23,7 @@ extern void forkret(void);
 static void freeproc(struct proc *p);
 
 int runnable_processes();
-void compute_loadavg();
+int compute_loadavg();
 
 extern char trampoline[]; // trampoline.S
 
@@ -722,25 +722,28 @@ count_processes(void)
     return count;
 }
 
-int runnable_processes() {
-    int count = 0;
-    struct proc *p;
+// int runnable_processes() {
+//     int count = 0;
+//     struct proc *p;
 
-    for (p = proc; p < &proc[NPROC]; p++) {
-        acquire(&p->lock);
-        if (p->state == RUNNABLE) {
-            count++;
-        }
-        release(&p->lock);
-    }
+//     for (p = proc; p < &proc[NPROC]; p++) {
+//         acquire(&p->lock);
+//         if (p->state == RUNNABLE || p->state == RUNNING) {
+//             count++;
+//         }
+//         release(&p->lock);
+//     }
 
-    return count;
-}
+//     return count;
+// }
 
 // Compute load average using an exponential moving average
-void compute_loadavg() {
-    int run_procs = runnable_processes();
-    loadavg = (loadavg * (LOADAVG_FACTOR - 1) + run_procs) / LOADAVG_FACTOR;
+int compute_loadavg() {
+    int run_procs = count_processes();
+    // printf("%d\n", run_procs);
+    // loadavg = (loadavg * (LOADAVG_FACTOR - 1) + run_procs) / LOADAVG_FACTOR;
+    loadavg = run_procs;
+    return run_procs;
 }
 
 // Function to retrieve load average (needed for system call)
